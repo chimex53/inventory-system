@@ -4,9 +4,9 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import userRoute from "./routes/userRoute.js";
-
+import errorHandler from './middleWare/errorMiddleware.js';
 dotenv.config();
-
+ 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -23,6 +23,9 @@ app.use("/api/users", userRoute);
 app.get('/', (req, res) => {
   res.send('welcome to home page');
 });
+
+// Error handling middleware
+app.use(errorHandler);
 
 async function startServer() {
   try {

@@ -1,6 +1,10 @@
 const errorHandler=(err,req,res,next)=>{
-    res.status(404).json({
-        message: 'Route not found',
-        status: 404
-    });
+    const statusCode =res.statusCode === 200 ? 500 : res.statusCode;
+    res.statusCode = statusCode;
+    res.json ({
+        message: err.message, 
+        stac: process.env.NODE_ENV ==='development' ? err.stack: null
+    })
 }
+
+export default errorHandler;

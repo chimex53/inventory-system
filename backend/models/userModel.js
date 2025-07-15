@@ -1,8 +1,9 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs'; 
 
 const userSchema = new mongoose.Schema({
   name: {
-    type: String, // Capitalized String
+    type: String,
     required: [true, "Please add a Name"],
   },
   email: {
@@ -19,7 +20,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please add a Password"],
     minlength: [8, "Password must be at least 8 characters"],
-    maxlength: [23, "Password must not be more than 23 characters"],
+    /* maxlength: [23, "Password must not be more than 23 characters"], */
     validate: {
       validator: function (v) {
         // Password must contain at least one uppercase letter, one number, and one special character
@@ -31,29 +32,42 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    required: [true, "Please add a Photo"],
     trim: true,
     default:
       "https://iconarchive.com/download/i107272/Flat-UI-Icons/User-Interface/user.ico",
   },
-  phone: {
-    type: String,
-    required: [true, "Please add a Phone Number"],
-    unique: true,
-    trim: true,
-    match: [/^\d{10}$/, "Please enter a valid phone number"],
-  },
-  bio: {
-    type: String,
-    required: [true, "Please add a Bio"],
-    trim: true,
-    maxlength: [250, "Bio must not be more than 250 characters"],
-  },
+ phone: {
+  type: String,
+  unique: true,
+  sparse: true,          // allow multiple docs without phone
+  trim: true,
+  match: [/^\+\d{11}$/, "Please enter a valid phone number with leading + and 11 digits"],
+  default: "+234000000000" // plus sign + 12 digits total
+},
+
+bio: {
+  type: String,
+  trim: true,
+  maxlength: [250, "Bio must not be more than 250 characters"],
+  default: "bio goes here"
+},
+
 }, {
   timestamps: true,
   versionKey: false,
-});
+}); 
 
-const User = mongoose.model("User", userSchema);
+  //Encrypt password before saving to DB
+  userSchema.pre("save", async function(next){
+ if(!this.isModified("password")){
+  return next()
+ }
+//Hash password 
+ const salt= await bcrypt.genSalt(10)
+  const hashedPassword =await bcrypt.hash(this.password,salt)
+    this.password=hashedPassword
+  next()
+  })
+const User = mongoose.model('User', userSchema);
 
 export default User;
