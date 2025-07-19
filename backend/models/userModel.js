@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs'; 
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -39,10 +39,16 @@ const userSchema = new mongoose.Schema({
  phone: {
   type: String,
   unique: true,
-  sparse: true,          // allow multiple docs without phone
+  sparse: true,
   trim: true,
-  match: [/^\+\d{11}$/, "Please enter a valid phone number with leading + and 11 digits"],
-  default: "+234000000000" // plus sign + 12 digits total
+  validate: {
+    validator: function(v) {
+      // Only validate if phone is provided (not null/undefined/empty)
+      if (!v) return true;
+      return /^\+\d{10,15}$/.test(v);
+    },
+    message: "Please enter a valid phone number with leading + and 10-15 digits"
+  },
 },
 
 bio: {

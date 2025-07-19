@@ -1,48 +1,58 @@
-import asyncHandler from 'express-async-handler';
-import User from '../models/userModel.js';
-import jwt from 'jsonwebtoken';
+import User from "../models/userModel.js";
+import asyncHandler from "express-async-handler";
+import jwt from "jsonwebtoken";
 
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-};
-
-// Register user controller
+const generateToken =(id)=>{
+ return jwt.sign({id}, process.env.JWT_SECRET,{expiresIn:"1d"}) 
+}
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, bio, phone } = req.body;
+  const { name, email, password, phone, bio, photo } = req.body;
 
   if (!name || !email || !password) {
     res.status(400);
-    throw new Error('Please fill all required fields');
+    throw new Error('Please provide name, email, and password');
   }
 
-  if (password.length < 8) {
+  // Check if user already exists
+  const userExists = await User.findOne({ email });
+  if (userExists) {
     res.status(400);
-    throw new Error('Password must be at least 8 characters');
+    throw new Error('User already exists');
   }
 
-  const userExist = await User.findOne({ email });
+  
+  // Create user
+  const user = await User.create({
+    name,
+    email,
+    password,
+    phone,
+    bio,
+    photo,
+  
+  });
 
-  if (userExist) {
-    res.status(409);
-    throw new Error('Email already exists');
-  }
+  // generete Token 
+  const token =generateToken(user._id)
 
-  const user = await User.create({ name, email, password, bio, phone });
-
+  //send HTTP- Only cookie 
+res.cookie("token",token, {
+  path:"/", 
+  httpOnly: true,
+  expires:new Date(Date.now() + 1000 *86400),
+  sameSite:"none",
+  secure:true 
+});
   if (user) {
-    const { _id, name, email, photo, phone, bio } = user;
-
-    // Token generation commented out intentionally:
-    // const token = generateToken(user._id);
-
+    const { _id, name, email, phone, bio, photo } = user;
     res.status(201).json({
       _id,
       name,
       email,
-      photo,
       phone,
       bio,
-      // token,
+      photo,
+       token
     });
   } else {
     res.status(400);
@@ -50,34 +60,4 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// Login user controller
-const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    res.status(400);
-    throw new Error('Please provide email and password');
-  }
-
-  const user = await User.findOne({ email });
-
-  if (user && (await user.matchPassword(password))) {
-    const token = generateToken(user._id);
-    const { _id, name, email, photo, phone, bio } = user;
-
-    res.json({
-      _id,
-      name,
-      email,
-      photo,
-      phone,
-      bio,
-      token,
-    });
-  } else {
-    res.status(401);
-    throw new Error('Invalid email or password');
-  }
-});
-
-export { registerUser, loginUser };
+export { registerUser };
