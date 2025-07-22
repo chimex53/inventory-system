@@ -160,7 +160,32 @@ const loginStatus =asyncHandler(async(req,res)=>{
       return res.json(true)
    } else{
          return res.json(false) 
-   }
- 
+   } 
 })
-export { registerUser,loginUser, logout, getUser,loginStatus};
+
+// update user data
+const updateUser = asyncHandler(async(req,res)=>{
+const user =await User.findById(req.user._id)
+if(user){
+      const { name, email, phone, bio, photo } = user;
+      user.email=email; // keep email unchanged
+      user.name= req.body.name || name;
+      user.phone= req.body.phone || phone;
+      user.bio= req.body.bio || bio;
+      user.photo= req.body.photo || photo;
+
+  const updatedUser = await user.save()
+  res.status(200).json({
+      _id:updatedUser._id,
+      name:updatedUser.name,
+      email:updatedUser.email, 
+      phone:updatedUser.phone,
+      bio:updatedUser.bio,
+      photo:updatedUser.photo
+  })
+}else{
+  res.status(404)
+  throw new Error("user not found")
+}
+})
+export { registerUser,loginUser, logout, getUser,loginStatus,updateUser};
