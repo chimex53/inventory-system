@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginUser, registerUser,logout, getUser, loginStatus,updateUser,changePassword} from "../controllers/userController.js";
+import { loginUser, registerUser,logout, getUser, loginStatus,updateUser,changePassword,forgotPassword } from "../controllers/userController.js";
 import protect from "../middleWare/authMiddleware.js";
 
 
@@ -12,5 +12,6 @@ router.get("/getUser", protect, getUser);
 router.get("/loginStatus", loginStatus);
 router.patch("/updateUser", protect,updateUser);
 router.patch("/changePassword", protect,changePassword);
+router.post("/forgotPassword", forgotPassword);
 export default router;
   

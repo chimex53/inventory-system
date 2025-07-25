@@ -218,4 +218,9 @@ if(user && passwordIsCorrect){
   throw new Error("old password is incorrect")
 }
 })
-export { registerUser,loginUser, logout, getUser,loginStatus,updateUser,changePassword};
+
+// forgot password
+const forgotPassword = asyncHandler(async (req, res) => {
+   res.send("forgot password")
+})
+export { registerUser,loginUser, logout, getUser,loginStatus,updateUser,changePassword,forgotPassword }; 
