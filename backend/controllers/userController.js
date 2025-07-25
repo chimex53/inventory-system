@@ -2,6 +2,8 @@ import User from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import Token from "../models/tokenModel.js";
+import crypto from 'crypto';
 
 // user id passed in the token
 const generateToken = (id) => {
@@ -221,6 +223,18 @@ if(user && passwordIsCorrect){
 
 // forgot password
 const forgotPassword = asyncHandler(async (req, res) => {
-   res.send("forgot password")
+const { email } = req.body;
+  // Check if user exists
+  const user = await User.findOne({ email });
+  if (!email) {
+    res.status(404);
+    throw new Error("user does not exist");
+  }
+
+// create a reset token
+let resetToken = crypto.randomBytes(32).toString("hex") + user._id
+
+console.log(resetToken);
+res.send("Forgot password")
 })
 export { registerUser,loginUser, logout, getUser,loginStatus,updateUser,changePassword,forgotPassword }; 
