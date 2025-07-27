@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import Token from "../models/tokenModel.js";
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 // user id passed in the token
 const generateToken = (id) => {
@@ -234,7 +235,60 @@ const { email } = req.body;
 // create a reset token
 let resetToken = crypto.randomBytes(32).toString("hex") + user._id
 
-console.log(resetToken);
-res.send("Forgot password")
-})
+//Hash the token before saving it to the DB
+const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+// save the token to the DB
+await Token.create({
+  userId: user._id,
+  token: hashedToken,
+  createdAt: Date.now(),
+  expiresAt: Date.now() + 30 * 60 * 1000 // Token valid for 30 minutes
+});
+
+// Create reset URL
+  const resetUrl = `${process.env.FRONTEND_URL}/api/users/resetPassword/${resetToken}`;
+
+  // Compose HTML email message with paragraphs
+  const message = `
+    <p>Hello ${user.name},</p>
+
+    <p>We received a request to reset your password. Please click the link below to reset your password:</p>
+
+    <p><a href="${resetUrl}">${resetUrl}</a></p>
+
+    <p>If you did not request this, please ignore this email.</p>
+
+    <p>Thank you!</p>
+  `;
+
+  // Set up nodemailer transporter (configure with your SMTP credentials or service)
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM_EMAIL,
+    to: user.email,
+    subject: "Password Reset Request",
+    html: message,
+  };
+
+  try {
+    // Send email
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: "Reset email sent" });
+  } catch (error) {
+    res.status(500);
+    throw new Error("Email could not be sent");
+  }
+});
+
 export { registerUser,loginUser, logout, getUser,loginStatus,updateUser,changePassword,forgotPassword }; 
+
+
