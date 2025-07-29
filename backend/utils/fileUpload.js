@@ -1,22 +1,29 @@
 import multer from "multer";
-import { dirname } from 'path';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get current directory path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // multer configuration for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'upload')
+    const uploadPath = path.join(__dirname, '..', 'uploads');
+    cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
-    cb(null, new Date().toISOString().replace(/:/g, "-")+ "-" + file.originalname) // 29/09/2025
+    cb(null, new Date().toISOString().replace(/:/g, "-") + "-" + file.originalname);
   }
-})
+});
 
 // set up multer with the storage configuration
 function fileFilter (req, file, cb) {
-    if(file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
-      return cb(null, true)
-} else{
-    return cb(null, false)
-}
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only .png, .jpg and .jpeg formats are allowed!'), false);
+    }
 }
 
 
