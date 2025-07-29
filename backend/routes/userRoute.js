@@ -4,7 +4,6 @@ import protect from "../middleWare/authMiddleware.js";
 
 
 const router = Router();
-
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.get("/logout", logout);

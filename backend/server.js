@@ -6,8 +6,15 @@ import bodyParser from 'body-parser';
 import userRoute from "./routes/userRoute.js";
 import errorHandler from './middleWare/errorMiddleware.js';
 import cookieParser from "cookie-parser";
+import productRoute from "./routes/productRoute.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
 dotenv.config();
- 
+
+// ES module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -18,8 +25,12 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// Serve static files from uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // Routes middleware
 app.use("/api/users", userRoute); 
+app.use("/api/products", productRoute); 
 
 // Routes 
 app.get('/', (req, res) => {

@@ -12,8 +12,8 @@ const generateToken = (id) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, email, password, phone, bio, photo } = req.body;
-
+  const { name, password, phone, bio, photo } = req.body;
+const email = req.body.email.trim().toLowerCase();
   if (!name || !email || !password) {
     res.status(400);
     throw new Error('Please provide name, email, and password');
@@ -26,28 +26,23 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new Error('User already exists');
   }
 
-  // Hash password before saving
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
-
-  // Create user
+  // 👉 Just pass plain password, let model handle hashing
   const user = await User.create({
     name,
     email,
-    password: hashedPassword,
+    password,
     phone,
     bio,
     photo,
   });
 
-  // Generate Token 
+  // ... (rest of your code is unchanged)
   const token = generateToken(user._id);
 
-  // Send HTTP-Only cookie 
   res.cookie("token", token, {
     path: "/", 
     httpOnly: true,
-    expires: new Date(Date.now() + 1000 * 86400), // 1 day
+    expires: new Date(Date.now() + 1000 * 86400),
     sameSite: "none",
     secure: true 
   });
@@ -69,9 +64,11 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
+
 // Login user
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const password = req.body.password; 
+const email = req.body.email.trim().toLowerCase();
 
   // Validate Request
   if (!email || !password) {
