@@ -1,21 +1,7 @@
 import multer from "multer";
-import path from 'path';
-import { fileURLToPath } from 'url';
 
-// Get current directory path
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// multer configuration for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadPath = path.join(__dirname, '..', 'uploads');
-    cb(null, uploadPath);
-  },
-  filename: function (req, file, cb) {
-    cb(null, new Date().toISOString().replace(/:/g, "-") + "-" + file.originalname);
-  }
-});
+// Use memory storage for Cloudinary upload
+const storage = multer.memoryStorage();
 
 // set up multer with the storage configuration
 function fileFilter (req, file, cb) {
