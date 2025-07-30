@@ -3,9 +3,10 @@ import Product from "../models/productModel.js";
 import { formatFileSize } from "../utils/fileUpload.js";
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from 'dotenv';
+import product from "../models/productModel.js";
 
 // Load environment variables
-dotenv.config();
+dotenv.config();  
 // Configure Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -65,5 +66,27 @@ const createProduct = asyncHandler(async (req, res) => {
     // Send response 
     res.status(201).json(product);
 });
+ // get all products
+ const getProducts = asyncHandler(async (req, res) => {
+    const products = await Product.find({ user: req.user._id }).sort("-createdAT");
+    res.status(200).json(products);
+ });
 
-export { createProduct };
+ // get a single product
+
+const getProduct= asyncHandler(async(req, res) => {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+        res.status(404);
+        throw new Error("product not found");
+    }
+    
+    if (product.user.toString() !== req.user.id) {
+        res.status(401);
+        throw new Error("user not authorized");
+    }
+    res.status(200).json(product);
+});
+
+export { createProduct, getProducts,getProduct};
+ 
