@@ -11,5 +11,4 @@ router.get('/', protect, getProducts);
 router.get('/:id', protect, getProduct);
 router.delete('/:id', protect, deleteProduct);
 router.patch('/:id', protect, upload.single('image'), updateProduct);
-
 export default router;

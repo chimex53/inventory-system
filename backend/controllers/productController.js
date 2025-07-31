@@ -158,7 +158,7 @@ const updateProduct = asyncHandler(async (req, res) => {
         description,
         category,
         quantity,
-        image: fileData || product.image,  // Include image data if present
+        image: Object.keys(fileData).length > 0 ? fileData : product.image,  // Include image data if present, otherwise keep existing image
     },
     {
         new: true,         // return the updated document
@@ -168,5 +168,10 @@ const updateProduct = asyncHandler(async (req, res) => {
     // Send response 
     res.status(200).json(updatedProduct);
 });
+
+/* //contact us 
+const contactUs = asyncHandler(async (req, res) => {
+   res.send("contcat us page");
+}); */
 export { createProduct, getProducts,getProduct, deleteProduct,updateProduct};
  
