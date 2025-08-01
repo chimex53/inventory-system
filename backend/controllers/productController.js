@@ -168,10 +168,5 @@ const updateProduct = asyncHandler(async (req, res) => {
     // Send response 
     res.status(200).json(updatedProduct);
 });
-
-/* //contact us 
-const contactUs = asyncHandler(async (req, res) => {
-   res.send("contcat us page");
-}); */
 export { createProduct, getProducts,getProduct, deleteProduct,updateProduct};
  

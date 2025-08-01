@@ -7,6 +7,7 @@ import userRoute from "./routes/userRoute.js";
 import errorHandler from './middleWare/errorMiddleware.js';
 import cookieParser from "cookie-parser";
 import productRoute from "./routes/productRoute.js";
+import contactRoute from "./routes/contactRoute.js";
 import path from 'path';
 import { fileURLToPath } from 'url';
 dotenv.config();
@@ -31,6 +32,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Routes middleware
 app.use("/api/users", userRoute); 
 app.use("/api/products", productRoute); 
+app.use("/api/contactUs", contactRoute); 
 
 // Routes 
 app.get('/', (req, res) => {

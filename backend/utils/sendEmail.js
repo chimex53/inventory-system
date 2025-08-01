@@ -1,28 +1,34 @@
 import nodemailer from 'nodemailer';
 
-const sendEmail = async (options) => {
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST,      // Use consistent environment variables
-    port: process.env.EMAIL_PORT,
-    secure: false,                     // true for 465, false for other ports
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  });
+const sendEmail = async (subject, message, send_to, sent_from, reply_to) => {
+    try {
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT),
+            secure: false,
+            auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
+            }
+        });
 
-  const mailOptions = {
-    from: `"Inventory System" <${process.env.EMAIL_USER}>`,
-    to: options.email,
-    subject: options.subject,
-    text: options.text || undefined,
-    html: options.html || undefined,
-  };
+        const mailOptions = {
+            from: sent_from,
+            to: send_to,
+            replyTo: reply_to,
+            subject: subject,
+            html: message
+        };
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully:', info.messageId);  return info;
 
-  await transporter.sendMail(mailOptions);
+    } catch (error) {
+      
+        throw new Error(`Failed to send email: ${error.message}`);
+    }
 };
 
 export default sendEmail;
