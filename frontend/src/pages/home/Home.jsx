@@ -35,23 +35,23 @@ const Home = () => {
           </div>
         </section>
 
-        <section className='container stats --flex-start'>
-          <NumberText num="80,000+" text="Brand Owners" />
-          <NumberText num="12,000+" text="Active Users" />
-          <NumberText num="50+" text="Countries Served" />
+        <section className='container stats'>
+          <div className="stat-item">
+            <div className="number">80,000+</div>
+            <div className="label">Brand Owners</div>
+          </div>
+          <div className="stat-item">
+            <div className="number">12,000+</div>
+            <div className="label">Active Users</div>
+          </div>
+          <div className="stat-item">
+            <div className="number">50+</div>
+            <div className="label">Countries Served</div>
+          </div>
         </section>
       </main>
     </div>
   );
-}
-
-const NumberText = ({ num, text }) => {
-  return (
-    <div className="--mr">
-      <h3 className='--color-white number'>{num}</h3>
-      <p className='--color-white label'>{text}</p>
-    </div>
-  )
 }
 
 export default Home;
