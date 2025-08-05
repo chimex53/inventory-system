@@ -14,7 +14,7 @@ const Login = () => {
         <h2>Login</h2>
 
         <form>
-    <input type="text" placeholder='Email' required name='Email' />
+    <input type="email" placeholder='Email' required name='Email' />
     <input type="password" placeholder='Password' name='password'  required/>
         <button type="submit"  className='--btn --btn-primary --btn-block '>Login</button>
         </form> 
