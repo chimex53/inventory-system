@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import Token from "../models/tokenModel.js";
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import { v2 as cloudinary } from 'cloudinary';
 
 // user id passed in the token
 const generateToken = (id) => {
@@ -172,17 +173,47 @@ if(user){
       user.name= req.body.name || name;
       user.phone= req.body.phone || phone;
       user.bio= req.body.bio || bio;
-      user.photo= req.body.photo || photo;
-
-  const updatedUser = await user.save()
-  res.status(200).json({
-      _id:updatedUser._id,
-      name:updatedUser.name,
-      email:updatedUser.email, 
-      phone:updatedUser.phone,
-      bio:updatedUser.bio,
-      photo:updatedUser.photo
-  })
+      
+      // Handle file upload for photo
+      if (req.file) {
+        try {
+          const uploadPromise = new Promise((resolve, reject) => {
+            const uploadStream = cloudinary.uploader.upload_stream(
+              {
+                resource_type: "auto",
+                folder: "profile-photos",
+              },
+              (error, result) => {
+                if (error) {
+                  reject(new Error("Failed to upload image"));
+                } else {
+                  resolve(result);
+                }
+              }
+            );
+            uploadStream.end(req.file.buffer);
+          });
+          
+          const result = await uploadPromise;
+          user.photo = result.secure_url;
+        } catch (error) {
+          res.status(500);
+          throw new Error("Failed to upload image");
+        }
+      } else {
+        // No file uploaded, just update other fields
+        user.photo = req.body.photo || photo;
+      }
+      
+      const updatedUser = await user.save();
+      res.status(200).json({
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email, 
+        phone: updatedUser.phone,
+        bio: updatedUser.bio,
+        photo: updatedUser.photo
+      });
 }else{
   res.status(404)
   throw new Error("user not found")

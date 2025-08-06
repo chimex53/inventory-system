@@ -5,16 +5,33 @@ import styles from "./Dashboard.module.css";
 import LoadingSpinner from "../components/loadingSpinner/LoadingSpinner";
 export default function Dashboard() {
   const [user, setUser] = useState(null);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
-    api
-      .get("/users/getUser")
-      .then((res) => setUser(res.data))
-      .catch(() => navigate("/login"))
-      .finally(() => setLoading(false));
+    const fetchData = async () => {
+      try {
+        const [userRes, productsRes] = await Promise.all([
+          api.get("/users/getUser"),
+          api.get("/products")
+        ]);
+        setUser(userRes.data);
+        setProducts(productsRes.data);
+      } catch (error) {
+        if (error.response?.status === 401) {
+          navigate("/login");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
   }, [navigate]);
+
+  const displayProducts = products.slice(0, 5); // Show only first 5 products
+  const totalValue = products.reduce((sum, product) => sum + (product.price * product.quantity), 0);
 
   const logout = async () => {
     await api.get("/users/logout");
@@ -51,17 +68,42 @@ export default function Dashboard() {
 
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
-          <div className={styles.statNumber}>📊</div>
-          <div className={styles.statLabel}>Dashboard</div>
+          <div className={styles.statIcon}>📊</div>
+          <div className={styles.statNumber}>{displayProducts.length || 0}</div>
+          <div className={styles.statLabel}>Total Products</div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statNumber}>📦</div>
-          <div className={styles.statLabel}>Products</div>
+          <div className={styles.statIcon}>📦</div>
+          <div className={styles.statNumber}>{displayProducts.filter(p => p.quantity > 0).length || 0}</div>
+          <div className={styles.statLabel}>In Stock</div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statNumber}>📞</div>
-          <div className={styles.statLabel}>Contact</div>
+          <div className={styles.statIcon}>💰</div>
+          <div className={styles.statNumber}>${totalValue || 0}</div>
+          <div className={styles.statLabel}>Total Value</div>
         </div>
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>📞</div>
+          <div className={styles.statNumber}>24/7</div>
+          <div className={styles.statLabel}>Support</div>
+        </div>
+        
+        {displayProducts.length > 0 && (
+          <div className={styles.recentProducts}>
+            <h3 className={styles.sectionTitle}>📦 Recent Products</h3>
+            <div className={styles.productsGrid}>
+              {displayProducts.map((product) => (
+                <div key={product._id} className={styles.productCard}>
+                  <div className={styles.productInfo}>
+                    <h4 className={styles.productName}>{product.name}</h4>
+                    <p className={styles.productPrice}>${product.price}</p>
+                    <p className={styles.productQuantity}>Qty: {product.quantity}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

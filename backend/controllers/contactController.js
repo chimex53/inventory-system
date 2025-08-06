@@ -51,12 +51,26 @@ const contactUs = asyncHandler(async (req, res) => {
         });
 
     }  catch (error) {
-    console.error("Email Error:", error);
-    res.status(500).json({
-        success: false,
-        message: error.message || "Email could not be sent, please try again"
-    });
-}
+        console.error("Email Error:", error);
+        
+        // Check if it's a connection timeout
+        if (error.code === 'ETIMEDOUT' || error.message.includes('ETIMEDOUT')) {
+            res.status(500).json({
+                success: false,
+                message: "Email service temporarily unavailable. Please try again later or contact support directly."
+            });
+        } else if (error.code === 'ECONNREFUSED') {
+            res.status(500).json({
+                success: false,
+                message: "Email service configuration error. Please contact support."
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: "Email could not be sent. Please try again later."
+            });
+        }
+    }
 
 });
 

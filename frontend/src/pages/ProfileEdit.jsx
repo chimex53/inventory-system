@@ -9,7 +9,7 @@ export default function ProfileEdit() {
     name: "",
     phone: "",
     bio: "",
-    photo: "",
+    photo: null,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -31,7 +31,13 @@ export default function ProfileEdit() {
       .finally(() => setLoading(false));
   }, [navigate]);
 
-  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const onChange = (e) => {
+    if (e.target.name === "photo") {
+      setForm({ ...form, photo: e.target.files[0] });
+    } else {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    }
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +45,17 @@ export default function ProfileEdit() {
     setSuccess("");
 
     try {
-      await api.patch("/users/updateUser", form);
+      const data = new FormData();
+      data.append("name", form.name);
+      data.append("phone", form.phone);
+      data.append("bio", form.bio);
+      if (form.photo) {
+        data.append("photo", form.photo);
+      }
+
+      await api.patch("/users/updateUser", data, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       setSuccess("Profile updated successfully!");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update profile.");
@@ -103,16 +119,30 @@ export default function ProfileEdit() {
           </div>
 
           <div className={styles.formGroup}>
-            <label htmlFor="photo" className={styles.label}>🖼️ Photo URL</label>
-            <input
-              id="photo"
-              type="text"
-              name="photo"
-              value={form.photo}
-              onChange={onChange}
-              className={styles.input}
-              placeholder="https://example.com/photo.jpg"
-            />
+            <label htmlFor="photo" className={styles.label}>🖼️ Profile Photo</label>
+            <div className={styles.fileInput}>
+              <input
+                type="file"
+                name="photo"
+                accept="image/png, image/jpeg, image/jpg"
+                onChange={onChange}
+                id="photo-upload"
+                className={styles.fileInputHidden}
+              />
+              <label htmlFor="photo-upload" className={styles.fileInputLabel}>
+                📁 Choose Photo
+              </label>
+            </div>
+            {form.photo && (
+              <div className={styles.photoPreview}>
+                <img 
+                  src={URL.createObjectURL(form.photo)} 
+                  alt="Profile Preview" 
+                  className={styles.previewImage}
+                />
+                <span className={styles.fileName}>{form.photo.name}</span>
+              </div>
+            )}
           </div>
 
           <div className={styles.actionBtns}>
