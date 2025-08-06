@@ -47,7 +47,7 @@ const createProduct = asyncHandler(async (req, res) => {
             filename: req.file.originalname,
             filePath: uploadedFile.secure_url,
             fileType: req.file.mimetype,
-            fileSize: formatFileSize(req.file.size,2), // Format file size
+            fileSize: formatFileSize(req.file.size), // Format file size
         }; 
     }
 
@@ -82,7 +82,7 @@ const getProduct= asyncHandler(async(req, res) => {
         throw new Error("product not found");
     }
     
-    if (product.user.toString() !== req.user.id) {
+    if (product.user.toString() !== req.user._id.toString()) {
         res.status(401);
         throw new Error("user not authorized");
     }
@@ -98,7 +98,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
     }
     
     // match user with product
-    if (product.user.toString() !== req.user.id) {
+    if (product.user.toString() !== req.user._id.toString()) {
         res.status(401);
         throw new Error("user not authorized");
     }
@@ -108,7 +108,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
 //update product 
 const updateProduct = asyncHandler(async (req, res) => {
-    const { name, price, description, category, quantity } = req.body;
+    const { name, price, description, category, sku, quantity } = req.body;
      
     const product= await Product.findById(req.params.id)
      if (!product) {
@@ -117,7 +117,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     }
 
     // match user with product
-    if (product.user.toString() !== req.user.id) {
+    if (product.user.toString() !== req.user._id.toString()) {
         res.status(401);
         throw new Error("user not authorized");
     }
@@ -143,7 +143,7 @@ const updateProduct = asyncHandler(async (req, res) => {
             filename: req.file.originalname,
             filePath: uploadedFile.secure_url,
             fileType: req.file.mimetype,
-            fileSize: formatFileSize(req.file.size,2), // Format file size
+            fileSize: formatFileSize(req.file.size), // Format file size
         }; 
     }
 
@@ -157,6 +157,7 @@ const updateProduct = asyncHandler(async (req, res) => {
         price,
         description,
         category,
+        sku,
         quantity,
         image: Object.keys(fileData).length > 0 ? fileData : product.image,  // Include image data if present, otherwise keep existing image
     },

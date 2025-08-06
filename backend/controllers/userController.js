@@ -245,7 +245,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   });
 
   // Create reset URL
-  const resetUrl = `${process.env.FRONTEND_URL}/api/users/resetPassword/${resetToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
 
   // Compose HTML email message with paragraphs
   const message = `
@@ -271,7 +271,7 @@ const forgotPassword = asyncHandler(async (req, res) => {
   });
 
   const mailOptions = {
-    from: process.env.SMTP_FROM_EMAIL,
+    from: process.env.SMTP_USER || process.env.SMTP_FROM_EMAIL,
     to: user.email,
     subject: "Password Reset Request",
     html: message,
@@ -280,10 +280,11 @@ const forgotPassword = asyncHandler(async (req, res) => {
   try {
     // Send email
     await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: "Reset email sent" });
+    res.status(200).json({ message: "Reset email sent successfully. Please check your email." });
   } catch (error) {
+    console.error("Email sending error:", error);
     res.status(500);
-    throw new Error("Email could not be sent");
+    throw new Error("Email could not be sent. Please try again later.");
   }
 });
 const resetPassword = asyncHandler(async (req, res) => {
