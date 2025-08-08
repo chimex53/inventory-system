@@ -38,7 +38,7 @@ export default function Login() {
         
         <form onSubmit={onSubmit} className={styles.form}>
           <div className={styles.formGroup}>
-            <label className={styles.label}>📧 Email Address</label>
+            <label className={styles.label}> Email Address</label>
             <input
               type="email"
               name="email"
@@ -66,13 +66,13 @@ export default function Login() {
           </div>
           
           <button type="submit" className={styles.submitBtn}>
-            🚀 Sign In
+             Sign In
           </button>
         </form>
         
         <div className={styles.links}>
           <Link to="/forgot-password" className={styles.link}>
-            🔑 Forgot your password?
+            Forgot your password?
           </Link>
           
           <div className={styles.divider}>
@@ -80,7 +80,7 @@ export default function Login() {
           </div>
           
           <Link to="/register" className={styles.link}>
-            👤 Don't have an account? Register here
+            Don't have an account? Register here
           </Link>
         </div>
       </div>

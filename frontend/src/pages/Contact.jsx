@@ -36,7 +36,7 @@ export default function Contact() {
   return (
     <div className={styles.container}>
       <div className={styles.contactCard}>
-        <h2 className={styles.title}>📞 Contact Us</h2>
+        <h2 className={styles.title}> Contact Us</h2>
         <p className={styles.description}>
           Have a question or need assistance? We'd love to hear from you! Send us a message and we'll respond as soon as possible.
         </p>
@@ -74,7 +74,7 @@ export default function Contact() {
           </div>
           
           <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? "📤 Sending..." : "📤 Send Message"}
+            {loading ? " Sending..." : " Send Message"}
           </button>
         </form>
         

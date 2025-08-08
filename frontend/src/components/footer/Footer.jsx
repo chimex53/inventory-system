@@ -12,24 +12,23 @@ export default function Footer() {
         </div>
         <div className={styles.footerLinks}>
           <a href="#" className={styles.footerLink}>
-            📞 Support
+         Support
           </a>
           <a href="#" className={styles.footerLink}>
-            📋 Privacy Policy
+          Privacy Policy
           </a>
           <a href="#" className={styles.footerLink}>
-            📄 Terms of Service
+          Terms of Service
           </a>
         </div>
         <div className={styles.socialLinks}>
           <a href="#" className={styles.socialLink} title="Facebook">
-            📘
           </a>
           <a href="#" className={styles.socialLink} title="Twitter">
-            🐦
+  
           </a>
           <a href="#" className={styles.socialLink} title="LinkedIn">
-            💼
+    
           </a>
         </div>
       </div>

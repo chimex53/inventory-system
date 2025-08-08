@@ -4,4 +4,4 @@ import contactUs from "../controllers/contactController.js";
 const router = express.Router();
 
 router.post('/', protect, contactUs);
-export default router
+export default router 
